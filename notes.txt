@@ -1,0 +1,34 @@
+get years
+https://www.thecarconnection.com/showroom-ajax/load-available-years?modelId=20000012
+
+create url
+location.href = '/overview/' +
+                allCars[picker.makeId].seo + '_' +
+                allCars[picker.makeId].models[picker.modelId].seo + '_' +
+                picker.year;
+
+
+data
+- overview page
+  - user reviews
+  - expert rating (overall and broken down)
+  - expert likes
+  - expert dislikes
+  - used price range
+- specifications page
+  - links to all styles of model
+  - msrp
+  - dimensions
+  - fuel economy
+  - performance
+  - safety features
+  - waranty
+  - other specs
+
+process to get data
+- for each car make, get years
+- for each car make and year
+  - call overview page
+  - call specifications page
+  - for each style, call specs page
+  - save each style to spreadsheet
