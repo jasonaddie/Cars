@@ -4,30 +4,22 @@ namespace :scraper do
 
   desc 'Get the years on file for each car model'
   task :get_model_years do
-    get_model_years_slow
+    get_model_years_fast
   end
 
-
-
-  # desc 'Merge the listing csv files'
-  # task :merge_listings do
-  #   merge_listings
-  # end
-
-  # desc 'Download the detail html pages use a parallel queue system'
-  # task :download_details_queue do
-  #   download_detail_html_pages_fast
-  # end
-
-  # desc 'Download the detail html pages using curl - slow!'
-  # task :download_details_curl do
-  #   download_detail_html_pages_slow
-  # end
-
-  # desc 'Process the detail html pages and save to csv'
-  # task :process_detail_html_pages do
-  #   process_detail_html_pages
-  # end
+  desc 'Get the overview info for each car model and year'
+  task :get_overview do
+    get_overview_info
+  end
 
 end
 
+namespace :scraper_test do
+
+  desc 'Get the overview info for a particular car and model'
+  task :get_overview_info_for_model, [:car_id, :model_id] do |_t, args|
+    puts args
+    get_overview_info_for_model(args[:car_id], args[:model_id])
+  end
+
+end

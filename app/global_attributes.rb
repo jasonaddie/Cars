@@ -1,23 +1,24 @@
 # files
 @all_cars_file = "data/all_cars.json"
 @all_cars_file_with_years = "data/all_cars_with_years.json"
+@all_cars_file_with_years_overview = "data/all_cars_with_years_overview.json"
+@csv_data = 'data.csv'
 
 # urls
 @model_years_url = 'https://www.thecarconnection.com/showroom-ajax/load-available-years?modelId='
+@overiew_url = 'https://www.thecarconnection.com/overview/{car}_{model}_{year}'
+@specs_url = 'https://www.thecarconnection.com/specification/{car}_{model}_{year}_{style}'
 
+@user_agent = "Mozilla/5.0 (Windows NT 10.0; WOW64; rv:54.0) Gecko/20100101 Firefox/54.0"
 
-
-# starting url
-@details_url = "https://obd-memorial.ru/html/info.htm?id="
-@image_url = "https://cdn.obd-memorial.ru/html/fullimage?id="
-@listings_url = "https://obd-memorial.ru/html/search.htm"
-@listens_arg1 = "d=T~ Грузинская ССР"
-@listens_arg2 = "entity=000000011111110"
-@listens_arg3 = "entities=24,28,27,23,34,22,20,21"
-@listens_arg4 = "ps=100"
-@listens_arg5 = "p="
-@page_start = 1
-@page_end =   2873
+@expert_ratings = {
+  'Styling' => 'styling',
+  'Performance' => 'performance',
+  'Comfort & Quality' => 'comfort_quality',
+  'Safety' => 'safety',
+  'Features' => 'features',
+  'Fuel Economy' => 'fuel_economy',
+}
 
 # detail csv headers
 @csv_headers = [
@@ -40,8 +41,4 @@
   'source image url'
 ]
 
-# folders to save files
-@listings_folder = 'listings'
-@details_folder = 'details'
-@csv_data = 'data.csv'
 
