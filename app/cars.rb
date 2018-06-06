@@ -255,7 +255,7 @@ def get_styles_info
   puts "FINISHED DOWNLOAD DATA!!"
 
   # save to file
-  File.open(@all_cars_file_with_years_overview_specs, 'wb') { |file| file.write(JSON.generate(json)) }
+  File.open(@all_cars_file_with_years_overview_styles, 'wb') { |file| file.write(JSON.generate(json)) }
 
   puts "TOTAL TIME TO DOWNLOAD AND WRITE STYLE SPECIFICATIONS TO FILE = #{((Time.now-start)/60).round(2)} minutes"
 end
@@ -275,7 +275,7 @@ def get_specification_info
   start = Time.now
 
   # open the json file of all cars and models and years
-  json = JSON.parse(File.read(@all_cars_file_with_years_overview_specs))
+  json = JSON.parse(File.read(@all_cars_file_with_years_overview_styles))
 
   if json.nil?
     puts "ERROR - could not find json file"
@@ -285,6 +285,7 @@ def get_specification_info
   hydra = Typhoeus::Hydra.new(max_concurrency: 20)
   request = nil
   total_downloaded = 0
+  total_to_download = 0
 
   # for each car, model, year - get overview
   json.each do |key_car, car|
@@ -309,6 +310,8 @@ def get_specification_info
                 followlocation: true, ssl_verifypeer: false, ssl_verifyhost: 0
               )
 
+              total_to_download += 1
+
               request.on_complete do |response|
                 # process the html
                 model['details'][year]['styles'][style] = process_specification_page(response.response_body)
@@ -316,7 +319,7 @@ def get_specification_info
                 total_downloaded += 1
 
                 if total_downloaded % 50 == 0
-                  puts "\n\n- #{total_downloaded} specification files downloaded; time so far = #{((Time.now-start)/60).round(2)} minutes\n\n"
+                  puts "\n\n- #{total_downloaded} specification files downloaded so far (out of #{total_to_download}); time so far = #{((Time.now-start)/60).round(2)} minutes\n\n"
                 end
               end
               hydra.queue(request)
@@ -332,7 +335,7 @@ def get_specification_info
   puts "FINISHED DOWNLOAD DATA!!"
 
   # save to file
-  File.open(@all_cars_file_with_years_overview_specs, 'wb') { |file| file.write(JSON.generate(json)) }
+  File.open(@all_cars_file_with_years_overview_styles_specs, 'wb') { |file| file.write(JSON.generate(json)) }
 
   puts "TOTAL TIME TO DOWNLOAD AND WRITE SPECIFICATIONS TO FILE = #{((Time.now-start)/60).round(2)} minutes"
 end

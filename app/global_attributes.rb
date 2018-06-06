@@ -2,7 +2,8 @@
 @all_cars_file = "data/all_cars.json"
 @all_cars_file_with_years = "data/all_cars_with_years.json"
 @all_cars_file_with_years_overview = "data/all_cars_with_years_overview.json"
-@all_cars_file_with_years_overview_specs = "data/all_cars_with_years_overview_specs.json"
+@all_cars_file_with_years_overview_styles = "data/all_cars_with_years_overview_styles.json"
+@all_cars_file_with_years_overview_styles_specs = "data/all_cars_with_years_overview_styles_specs.json"
 @csv_data = 'data.csv'
 
 # urls
