@@ -68,7 +68,7 @@ def get_model_years_fast
 
   puts "- found #{car_model_ids.length} cars with a total of #{car_model_ids.map{|x| x[1]}.flatten.length} models"
 
-  hydra = Typhoeus::Hydra.new(max_concurrency: 20)
+  hydra = Typhoeus::Hydra.new(max_concurrency: @max_concurrency)
   request = nil
   total_left_to_process = car_model_ids.length
 
@@ -131,7 +131,7 @@ def get_overview_info
     exit
   end
 
-  hydra = Typhoeus::Hydra.new(max_concurrency: 20)
+  hydra = Typhoeus::Hydra.new(max_concurrency: @max_concurrency)
   request = nil
   total_to_download = json.values.map{|x| x['models'].values.map{|y| y['years'].length}}.flatten.inject(0, :+)
   total_left_to_download = json.values.map{|x| x['models'].values.map{|y| y['years'].length}}.flatten.inject(0, :+)
@@ -193,7 +193,7 @@ def get_styles_info
     exit
   end
 
-  hydra = Typhoeus::Hydra.new(max_concurrency: 20)
+  hydra = Typhoeus::Hydra.new(max_concurrency: @max_concurrency)
   request = nil
   total_to_download = json.values.map{|x| x['models'].values.map{|y| y['years'].length}}.flatten.inject(0, :+)
   total_left_to_download = json.values.map{|x| x['models'].values.map{|y| y['years'].length}}.flatten.inject(0, :+)
@@ -275,14 +275,19 @@ def get_specification_info
   start = Time.now
 
   # open the json file of all cars and models and years
-  json = JSON.parse(File.read(@all_cars_file_with_years_overview_styles))
+  # if the specs file exists, use it, else start with the styles
+  json = if File.exist?(@all_cars_file_with_years_overview_styles_specs)
+    JSON.parse(File.read(@all_cars_file_with_years_overview_styles_specs))
+  else
+    JSON.parse(File.read(@all_cars_file_with_years_overview_styles))
+  end
 
   if json.nil?
     puts "ERROR - could not find json file"
     exit
   end
 
-  hydra = Typhoeus::Hydra.new(max_concurrency: 20)
+  hydra = Typhoeus::Hydra.new(max_concurrency: @max_concurrency)
   request = nil
   total_downloaded = 0
   total_to_download = 0
@@ -320,6 +325,13 @@ def get_specification_info
 
                 if total_downloaded % 50 == 0
                   puts "\n\n- #{total_downloaded} specification files downloaded so far (out of #{total_to_download}); time so far = #{((Time.now-start)/60).round(2)} minutes\n\n"
+                end
+
+                # since there are lots of files to download
+                # let's save to file after every 1000 records are processed
+                if total_downloaded % 1000 == 0
+                  puts "\n\n- saving to file \n\n"
+                  File.open(@all_cars_file_with_years_overview_styles_specs, 'wb') { |file| file.write(JSON.generate(json)) }
                 end
               end
               hydra.queue(request)
