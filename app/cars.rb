@@ -1,5 +1,9 @@
 require_relative 'environment'
 
+#####################
+## GET DATA FROM WEB PAGES
+#####################
+
 # get the years for all models
 # - it gets the model years one at a time and takes about 12 minutes to run
 def get_model_years_slow
@@ -262,7 +266,6 @@ end
 
 # for each car, model, year, style
 # call specifications page to get
-# - links to all styles of model
 # - msrp
 # - dimensions
 # - fuel economy
@@ -350,6 +353,115 @@ def get_specification_info
   File.open(@all_cars_file_with_years_overview_styles_specs, 'wb') { |file| file.write(JSON.generate(json)) }
 
   puts "TOTAL TIME TO DOWNLOAD AND WRITE SPECIFICATIONS TO FILE = #{((Time.now-start)/60).round(2)} minutes"
+end
+
+#####################
+## CONVERT JSON TO CSV
+#####################
+def convert_json_to_csv
+  start = Time.now
+
+  json = JSON.parse(File.read(@all_cars_file_with_years_overview_styles_specs))
+
+  if json.nil?
+    puts "ERROR - could not find json file"
+    exit
+  end
+
+  rows = []
+  row_count = 0
+
+  # for each car, model, year - get overview
+  json.each do |key_car, car|
+    puts "-----------"
+    puts "car: #{car['name']}"
+    car['models'].each do |key_model, model|
+      puts "- model: #{model['name']}"
+
+      model['details'].each do |key_year, detail|
+        puts "-- year: #{key_year}"
+
+        if !detail['styles'].nil?
+
+          detail['styles'].each do |key_style, style|
+            puts "--- style: #{key_style}"
+
+            # build row of data
+            # - main car details
+            row = []
+            row << car['name']
+            row << model['name']
+            row << key_year
+            row << style['style']
+
+            # - overview
+            #   - go through each key and get value
+            detail['overview'].each do |key, value|
+              if key != 'specs_url_slug'
+
+                # if this is expert_rating the value is a has
+                # - go through each key and add the appropriate value
+                #   - have to do this manually instead of loop for some keys may be missing
+                #     and we need to make sure columns are in correct order
+                if key == 'expert_rating'
+                  row << value['overview']
+                  row << value['styling']
+                  row << value['performance']
+                  row << value['comfort_quality']
+                  row << value['safety']
+                  row << value['features']
+                  row << value['fuel_economy']
+
+                # if the value is an array, joine the array into a string
+                elsif value.class == Array
+                  if value.length == 0
+                    row << nil
+                  else
+                    row << value.join("\n")
+                  end
+
+                else
+                  row << value
+                end
+
+              end
+            end
+
+            # - specs
+            #   - go through each key and get value
+            if !style.nil?
+              style.each do |key, value|
+                if key != 'style'
+                  row << value
+                end
+              end
+            end
+
+            # save the row
+            rows << row
+            row_count += 1
+
+            if row_count % 1000 == 0
+              puts "\n\n- #{row_count} created so far; time so far = #{((Time.now-start)/60).round(2)} minutes\n\n"
+            end
+          end
+        end
+      end
+    end
+  end
+
+  puts "BUILDING CSV"
+  CSV.open(@csv_data, 'wb') do |csv|
+    # headers
+    csv << @csv_headers
+
+    # rows
+    rows.each do |row|
+      csv << row
+    end
+  end
+
+  puts "TOTAL TIME TO BUILD AND WRITE CSV FILE = #{((Time.now-start)/60).round(2)} minutes"
 end
 
 

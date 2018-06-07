@@ -22,6 +22,11 @@ namespace :scraper do
     get_specification_info
   end
 
+  desc 'Generate the CSV file from the JSON file'
+  task :generate_csv do
+    convert_json_to_csv
+  end
+
 end
 
 namespace :scraper_test do
